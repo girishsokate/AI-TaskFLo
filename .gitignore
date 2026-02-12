@@ -1,0 +1,12 @@
+BackEnd/.env
+FrontEnd/.env
+BackEnd/node_modules
+FrontEnd/node_modules
+
+
+# Build output
+BackEnd/build/
+BackEnd/dist/
+
+FrontEnd/build/
+FrontEnd/dist/
