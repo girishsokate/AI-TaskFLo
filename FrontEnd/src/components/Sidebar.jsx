@@ -22,6 +22,12 @@ const Sidebar = ({user, tasks}) => {
   const username = user?.name || "User";
   const initial = username.charAt(0).toUpperCase();
 
+  
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "auto"
+    return () => { document.body.style.overflow = "auto" }
+  }, [mobileOpen])
+
   const renderMenuItems = (isMobile = false) => (
     <ul className="space-y-2">
       {menuItems.map(({text, path, icon}) => (
@@ -109,7 +115,7 @@ const Sidebar = ({user, tasks}) => {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40">
+        <div className="fixed inset-0 z-9999">
           <div
             className={SIDEBAR_CLASSES.mobileDrawerBackdrop}
             onClick={() => setMobileOpen(false)}

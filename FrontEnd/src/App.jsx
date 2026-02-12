@@ -7,6 +7,7 @@ import Signup from "./components/Signup";
 import Dashboard from "./pages/dashboard"; 
 import Pending from "./pages/Pending";
 import Complete from "./pages/Complete";
+import Profile from "./components/Profile";
 
 
 const App = () => {
@@ -76,6 +77,7 @@ const App = () => {
         <Route index element={<Dashboard />} />
         <Route path="pending" element={<Pending />} />
         <Route path="complete" element={<Complete />} />
+        <Route path="profile" element={<Profile  user={currentUser} setCurrentUser={setCurrentUser} onLogout={handleLogout} />} />
       </Route>
       <Route path="*" element={<Navigate to={currentUser ? "/" : "/login"} replace />}/>
     </Routes>
