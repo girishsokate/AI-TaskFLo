@@ -45,11 +45,11 @@ const Layout = ({ user, onLogout }) => {
   },[fetchTasks])
 
   const stats = useMemo(() => {
-    const completedTasks = tasks.filter(t => {
+    const completedTasks = tasks.filter(t => (
       t.completed === true ||
       t.completed === 1 ||
       (typeof t.completed === 'string' && t.completed.toLowerCase() === "yes")
-    }).length
+    )).length
 
     const totalCount = tasks.length;
     const pendingCount = totalCount - completedTasks;

@@ -1,8 +1,8 @@
 import { useState, useMemo, useCallback } from "react"
 import { useOutletContext } from "react-router-dom"
 import { Plus, Filter, Home as HomeIcon, Calendar as CalendarIcon, Flame } from "lucide-react"
-// import TaskModal from "../components/AddTask"
-// import TaskItem from "../components/TaskItem"
+ import TaskModal from "../components/AddTask"
+ import TaskItem from "../components/TaskItem"
 import axios from "axios"
 
 import {
@@ -12,9 +12,12 @@ import {
 } from '../assets/dummy'
 
 
+
 const Dashboard = () => {
   const {tasks, refreshTasks} = useOutletContext()
   const [filter, setFilter] = useState("all")
+    const [showModal, setShowModal] = useState(false)
+      const [selectedTask, setSelectedTask] = useState(null)
 
   const stats = useMemo(() => ({
     total:tasks.length,
@@ -47,6 +50,19 @@ const Dashboard = () => {
     }
 
   }),[tasks, filter])
+
+
+    // Save tasks
+  const handleTaskSave = useCallback(async (taskData) => {
+    try {
+      if (taskData.id) await axios.put(`${API_BASE}/${taskData.id}/ct`, taskData)
+      refreshTasks()
+      setShowModal(false)
+      setSelectedTask(null)
+    } catch (error) {
+      console.error("Error saving task:", error)
+    }
+  }, [refreshTasks])
   
   return (
        <div className={WRAPPER}>
@@ -110,10 +126,24 @@ const Dashboard = () => {
             </div>
           ) : (
             filteredTasks.map(task => (
-              console.log(task)
+              <TaskItem
+              key={task._id || task.id}
+                task={task}
+                onRefresh={refreshTasks}
+                showCompleteCheckbox
+                onEdit={() => { setSelectedTask(task); setShowModal(true); }}
+                />
             ))
           )}
         </div>
+
+        {/* Modal */}
+      <TaskModal
+        isOpen={showModal || !!selectedTask}
+        onClose={() => { setShowModal(false); setSelectedTask(null); }}
+        taskToEdit={selectedTask}
+        onSave={handleTaskSave}
+      />
 
       </div>
 

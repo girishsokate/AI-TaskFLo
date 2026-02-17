@@ -54,8 +54,10 @@ export const getTasks = async (req, res) => {
 
 // UPDATE A TASK BY ID
 export const updateTask = async(req, res) => {
+  
   try{
     const data = {...req.body};
+    console.log(data)
     if(data.completed !== undefined){
       data.completed = data.completed === "yes" || data.completed === true;
     }
@@ -66,7 +68,7 @@ export const updateTask = async(req, res) => {
     if(!updatedTask){
       return res.status(404).json({status:false, message:"Task not found"})
     }
-    res.status(200).json({success:true, task: updateTask})
+    res.json({success:true, task: updatedTask})
 
   }catch(err){
       console.error(err);

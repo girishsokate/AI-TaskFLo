@@ -4,6 +4,7 @@ import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 
 const authMiddleware = async (req, res, next) => {
+
   const authHeader = req.headers.authorization;
   if(!authHeader || !authHeader.startsWith("Bearer")){
     return res.status('401').json({success: false, message:"Not Authorized - Token Missing"})
