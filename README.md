@@ -1,4 +1,4 @@
-# TaskFLo
+# AI-TaskFLo
 
 TaskFLo is a full-stack daily productivity app for managing tasks, AI-assisted day plans, a Kanban board, and personal analytics — all behind authenticated user accounts.
 
