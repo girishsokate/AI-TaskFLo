@@ -1,0 +1,87 @@
+/* App shell */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.app-shell__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: var(--sidebar-width);
+}
+
+.app-shell__content {
+  flex: 1;
+  padding: var(--space-6);
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.app-shell__loading,
+.app-shell__error {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  padding: var(--space-6);
+}
+
+.app-shell__spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  border: 3px solid var(--color-primary-muted);
+  border-top-color: var(--color-primary);
+  animation: spin 0.8s linear infinite;
+}
+
+.app-shell__error-card {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  text-align: center;
+  max-width: 420px;
+}
+
+.app-shell__error-card button {
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: none;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app-shell__error-card button:hover {
+  background-color: #fecaca;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.app-shell__content:has(.taskboard) {
+  max-width: none;
+}
+
+@media (max-width: 768px) {
+  .app-shell__main {
+    margin-left: 0;
+  }
+
+  .app-shell__content {
+    padding: var(--space-4);
+  }
+}

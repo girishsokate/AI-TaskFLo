@@ -1,150 +1,117 @@
-import { useState, useEffect } from "react"
-import { NavLink } from "react-router-dom"
-import { Sparkles, Lightbulb, Menu, X } from "lucide-react"
-//import TaskModal from "../components/AddTask"
+import { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
 import {
-  menuItems,
-  SIDEBAR_CLASSES,
-  LINK_CLASSES,
-  PRODUCTIVITY_CARD,
-  TIP_CARD,
-} from "../assets/dummy"
+  LayoutDashboard,
+  CalendarDays,
+  CheckSquare,
+  BarChart3,
+  Settings,
+  ChevronsLeft,
+  Menu,
+  X,
+} from "lucide-react";
 
-const Sidebar = ({user, tasks}) => {
-  console.log('tasks', user)
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [showMomdal, setShowModal] = useState(false)
+const menuItems = [
+  { text: "Dashboard", path: "/", icon: LayoutDashboard },
+  { text: "Plans", path: "/plans", icon: CalendarDays },
+  { text: "TaskBoard", path: "/taskboard", icon: CheckSquare },
+  { text: "Analytics", path: "/analytics", icon: BarChart3 },
+  { text: "Settings", path: "/profile", icon: Settings },
+];
 
-  const totalTasks = tasks.length || 0
-  const completedtasks = tasks?.filter((t) => t.completed).length || 0;
-  const productivity = totalTasks > 0 ? Math.round((completedtasks/totalTasks) * 100) : 0;
-
+const Sidebar = ({ user }) => {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const username = user?.name || "User";
-  const initial = username.charAt(0).toUpperCase();
 
-  const renderMenuItems = (isMobile = false) => (
-    <ul className="space-y-2">
-      {menuItems.map(({text, path, icon}) => (
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "auto";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [mobileOpen]);
 
-        <li key={text}>        
-          <NavLink
-            to={path}
-            className={({ isActive }) =>
-              [
-                LINK_CLASSES.base,
-                isActive ? LINK_CLASSES.active : LINK_CLASSES.inactive,
-                isMobile ? "justify-start" : "lg:justify-start"
-              ].join(" ")
-            }
-            onClick={() => setMobileOpen(false)}
-          >
-             <span className={LINK_CLASSES.icon}>{icon}</span>
-            <span className={`${isMobile ? 'block' : 'hidden lg:block'} ${LINK_CLASSES.text}`}>
-              {text}
-            </span>
-          </NavLink>
-        </li>
-      ))}
-    </ul>
- )
+  const renderItems = (isDrawer = false) =>
+    menuItems.map(({ text, path, icon: Icon }) => (
+      <NavLink
+        key={text}
+        to={path}
+        end={path === "/"}
+        className={({ isActive }) =>
+          `sidebar__item${isActive ? " is-active" : ""}`
+        }
+        onClick={() => setMobileOpen(false)}
+        title={text}
+      >
+        <span className="sidebar__item-icon">
+          <Icon size={isDrawer ? 20 : 22} strokeWidth={1.75} />
+        </span>
+        <span className="sidebar__item-label">{text}</span>
+      </NavLink>
+    ));
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <div className={SIDEBAR_CLASSES.desktop}>
-        <div className="p-5 border-b border-purple-100 lg:block hidden">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
-              {initial}
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-gray-800">Hey, {username}</h2>
-              <p className="text-sm text-purple-500 font-medium flex items-center gap-1">
-                <Sparkles className="w-3 h-3" /> Let’s crush some tasks!
-              </p>
-            </div>
-          </div>
+      <aside className="sidebar" aria-label="Main navigation">
+        <nav className="sidebar__nav">{renderItems()}</nav>
+        <div className="sidebar__footer">
+          <button
+            type="button"
+            className="sidebar__collapse"
+            aria-label="Collapse sidebar"
+          >
+            <ChevronsLeft size={18} strokeWidth={1.75} />
+            <span>Collapse</span>
+          </button>
         </div>
+      </aside>
 
-        <div className="p-4 space-y-6 overflow-y-auto flex-1">
-          <div className={PRODUCTIVITY_CARD.container}>
-            <div className={PRODUCTIVITY_CARD.header}>
-              <h3 className={PRODUCTIVITY_CARD.label}>PRODUCTIVITY</h3>
-              <span className={PRODUCTIVITY_CARD.badge}>{productivity}%</span>
-            </div>
-            <div className={PRODUCTIVITY_CARD.barBg}>
-              <div
-                className={PRODUCTIVITY_CARD.barFg}
-                style={{ width: `${productivity}%` }}
-              />
-            </div>
-          </div>
-    <div>
-          {renderMenuItems()}
-</div>
-          <div className="mt-auto pt-6 lg:block hidden">
-            <div className={TIP_CARD.container}>
-              <div className="flex items-center gap-2">
-                <div className={TIP_CARD.iconWrapper}>
-                  <Lightbulb className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className={TIP_CARD.title}>Pro Tip</h3>
-                  <p className={TIP_CARD.text}>Use keyboard shortcuts to boost productivity!</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-        {!mobileOpen && (
+      {!mobileOpen && (
         <button
+          type="button"
+          className="sidebar__mobile-trigger"
           onClick={() => setMobileOpen(true)}
-          className={SIDEBAR_CLASSES.mobileButton}
+          aria-label="Open menu"
         >
-          <Menu className="w-5 h-5" />
+          <Menu size={20} />
         </button>
       )}
 
-      {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40">
+        <>
           <div
-            className={SIDEBAR_CLASSES.mobileDrawerBackdrop}
+            className="sidebar__drawer-backdrop"
             onClick={() => setMobileOpen(false)}
           />
-
           <div
-            className={SIDEBAR_CLASSES.mobileDrawer}
-            onClick={(e) => e.stopPropagation()}
+            className="sidebar__drawer"
+            role="dialog"
+            aria-label="Mobile menu"
           >
-            <div className="flex justify-between items-center mb-4 border-b pb-2">
-              <h2 className="text-lg font-bold text-purple-600">Menu</h2>
-              <button onClick={() => setMobileOpen(false)} className="text-gray-700 hover:text-purple-600">
-                <X className="w-5 h-5" />
+            <div className="sidebar__drawer-header">
+              <h2>Menu</h2>
+              <button
+                type="button"
+                className="sidebar__drawer-close"
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close menu"
+              >
+                <X size={20} />
               </button>
             </div>
-
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-fuchsia-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
-                {initial}
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-800">Hey, {username}</h2>
-                <p className="text-sm text-purple-500 font-medium flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> Let’s crush some tasks!
-                </p>
-              </div>
-            </div>
-
-            {renderMenuItems(true)}
+            <p
+              style={{
+                fontSize: "0.875rem",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              Hey, {username}
+            </p>
+            <nav className="sidebar__nav">{renderItems(true)}</nav>
           </div>
-        </div>
+        </>
       )}
-
     </>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

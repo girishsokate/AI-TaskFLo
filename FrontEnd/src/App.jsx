@@ -4,10 +4,21 @@ import { Routes, Route, Outlet, useNavigate, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import Dashboard from "./pages/dashboard"; 
+import Dashboard from "./pages/Dashboard";
+import Plans from "./pages/Plans";
 import Pending from "./pages/Pending";
-import Complete from "./pages/Complete";
+import Profile from "./components/Profile";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
+import TaskBoard from "./pages/TaskBoard";
+import Analytics from "./pages/Analytics";
+import PlannerDashboard from "./pages/PlannerDashboard";
 
+const ProtectedLayout = ({ currentUser, logoutHandler }) => (
+  <Layout user={currentUser} onLogout={() => logoutHandler()}>
+    <Outlet></Outlet>
+  </Layout>
+);
 
 const App = () => {
   const navigate = useNavigate();
@@ -36,17 +47,11 @@ const App = () => {
     navigate("/", { replace: true });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    await localStorage.removeItem("token");
     setCurrentUser(null);
     navigate("/login", { replace: true });
   };
-
-  const ProtectedLayout = () => (
-    <Layout user={currentUser} onLogout={handleLogout}>
-      <Outlet></Outlet>
-    </Layout>
-  );
 
   return (
     <Routes>
@@ -72,12 +77,59 @@ const App = () => {
           </div>
         }
       ></Route>
-      <Route element={currentUser ? <ProtectedLayout /> : <Navigate to={"/login"} />}>
+      <Route
+        path="/forgot-password"
+        element={
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <ForgotPassword
+              onSubmit={handleAuthSubmit}
+              onSwitchMode={() => navigate("/signup")}
+            ></ForgotPassword>
+          </div>
+        }
+      ></Route>
+      <Route
+        path="/reset-password/:token"
+        element={
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <ResetPassword
+              onSubmit={handleAuthSubmit}
+              onSwitchMode={() => navigate("/signup")}
+            ></ResetPassword>
+          </div>
+        }
+      ></Route>
+      <Route
+        element={
+          currentUser ? (
+            <ProtectedLayout
+              currentUser={currentUser}
+              logoutHandler={handleLogout}
+            />
+          ) : (
+            <Navigate to={"/login"} />
+          )
+        }
+      >
         <Route index element={<Dashboard />} />
-        <Route path="pending" element={<Pending />} />
-        <Route path="complete" element={<Complete />} />
+        <Route path="plans" element={<Plans />} />
+        <Route path="taskboard" element={<TaskBoard />} />
+        <Route path="analytics" element={<Analytics />} />
+        <Route
+          path="profile"
+          element={
+            <Profile
+              user={currentUser}
+              setCurrentUser={setCurrentUser}
+              onLogout={handleLogout}
+            />
+          }
+        />
       </Route>
-      <Route path="*" element={<Navigate to={currentUser ? "/" : "/login"} replace />}/>
+      <Route
+        path="*"
+        element={<Navigate to={currentUser ? "/" : "/login"} replace />}
+      />
     </Routes>
   );
 };
