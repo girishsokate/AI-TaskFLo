@@ -1,167 +1,226 @@
-import { useState, useMemo, useCallback } from "react"
-import { useOutletContext } from "react-router-dom"
-import { Plus, Filter, Home as HomeIcon, Calendar as CalendarIcon, Flame } from "lucide-react"
- import TaskModal from "../components/AddTask"
- import TaskItem from "../components/TaskItem"
-import axios from "axios"
-
+import { useState, useMemo } from "react";
 import {
-  WRAPPER, HEADER, ADD_BUTTON, STATS_GRID, STAT_CARD, ICON_WRAPPER, VALUE_CLASS, LABEL_CLASS,
-  STATS, FILTER_OPTIONS, FILTER_LABELS, EMPTY_STATE, FILTER_WRAPPER, SELECT_CLASSES,
-  TABS_WRAPPER, TAB_BASE, TAB_ACTIVE, TAB_INACTIVE
-} from '../assets/dummy'
-
-
+  Plus,
+  Filter,
+  Home as HomeIcon,
+  Calendar as CalendarIcon,
+} from "lucide-react";
+import TaskModal from "../components/AddTask";
+import TaskItem from "../components/TaskItem";
+import { GeneratedPlans } from "../components/GeneratedPlans";
+import { FILTER_LABELS, FILTER_OPTIONS, STATS } from "../utils/contants";
+import { formatDateValue } from "../utils/planHelpers";
+import { useAppShell } from "../context/AppShellContext";
+import { usePlannerByDate } from "../hooks/usePlannerByDate";
 
 const Dashboard = () => {
-  const {tasks, refreshTasks} = useOutletContext()
-  const [filter, setFilter] = useState("all")
-    const [showModal, setShowModal] = useState(false)
-      const [selectedTask, setSelectedTask] = useState(null)
+  const { tasks, refreshTasks, selectedDate, onLogout } = useAppShell();
+  const [filter, setFilter] = useState("all");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const { focusMode, plan, hasGenerated } = usePlannerByDate(selectedDate);
 
-  const stats = useMemo(() => ({
-    total:tasks.length,
-    lowPriority: tasks.filter((t)=> t.priority?.toLowerCase() === "low").length,
-    mediumPriority: tasks.filter((t)=> t.priority?.toLowerCase() === "medium").length,
-    highPriority: tasks.filter((t)=> t.priority?.toLowerCase() === "high").length,
-    completed: tasks.filter((t) => 
-          t.completed === true || t.completed === 1 ||
-      (typeof t.completed === "string" && t.completed.toLowerCase() === "yes")
-    ).length
-  }),[tasks])
+  const stats = useMemo(
+    () => ({
+      total: tasks.length,
+      lowPriority: tasks.filter((t) => t.priority?.toLowerCase() === "low")
+        .length,
+      mediumPriority: tasks.filter(
+        (t) => t.priority?.toLowerCase() === "medium",
+      ).length,
+      highPriority: tasks.filter((t) => t.priority?.toLowerCase() === "high")
+        .length,
+      completed: tasks.filter(
+        (t) =>
+          t.completed === true ||
+          t.completed === 1 ||
+          (typeof t.completed === "string" &&
+            t.completed.toLowerCase() === "yes"),
+      ).length,
+    }),
+    [tasks],
+  );
 
-  const filteredTasks = useMemo(()=> tasks.filter(task =>{
-    const today = new Date()
-    const dueDate = new Date(task.dueDate)
-    const nextWeek = new Date(today); nextWeek.setDate(today.getDate() + 7)
-    console.log(dueDate)
-    console.log(nextWeek)
-    switch (filter) {
-      case "today":
-        return dueDate.toDateString() === today.toDateString()
-      case "week":
-        return dueDate >= today && dueDate <= nextWeek
-      case "high":
-      case "medium":
-      case "low":
-        return task.priority?.toLowerCase() === filter
-      default:
-        return true
-    }
+  const filteredTasks = useMemo(
+    () =>
+      tasks.filter((task) => {
+        const today = new Date();
+        const dueDate = new Date(task.dueDate);
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
 
-  }),[tasks, filter])
+        switch (filter) {
+          case "today":
+            return dueDate.toDateString() === today.toDateString();
+          case "week":
+            return dueDate >= today && dueDate <= nextWeek;
+          case "high":
+          case "medium":
+          case "low":
+            return task.priority?.toLowerCase() === filter;
+          default:
+            return true;
+        }
+      }),
+    [tasks, filter],
+  );
 
+  const handleTaskSave = async () => {
+    await refreshTasks();
+    setShowModal(false);
+    setSelectedTask(null);
+  };
 
-    // Save tasks
-  const handleTaskSave = useCallback(async (taskData) => {
-    try {
-      if (taskData.id) await axios.put(`${API_BASE}/${taskData.id}/ct`, taskData)
-      refreshTasks()
-      setShowModal(false)
-      setSelectedTask(null)
-    } catch (error) {
-      console.error("Error saving task:", error)
-    }
-  }, [refreshTasks])
-  
   return (
-       <div className={WRAPPER}>
-      {/* Header */}
-      <div className={HEADER}>
-        <div className="min-w-0">
-          <h1 className="text-xl md:text-3xl font-bold text-gray-800 flex items-center gap-2">
-            <HomeIcon className="text-purple-500 w-5 h-5 md:w-6 md:h-6 shrink-0" />
-            <span className="truncate">Task Overview</span>
+    <div className="dashboard">
+      <div className="dashboard__header">
+        <div className="dashboard__heading">
+          <h1 className="dashboard__title">
+            <HomeIcon size={24} className="dashboard__title-icon" />
+            <span>Task Overview</span>
           </h1>
-          <p className="text-sm text-gray-500 mt-1 ml-7 truncate">Manage your tasks efficiently</p>
+          <p className="dashboard__subtitle">Manage your tasks efficiently</p>
         </div>
-        <button onClick={() => setShowModal(true)} className={ADD_BUTTON}>
+        <button
+          type="button"
+          onClick={() => setShowModal(true)}
+          className="btn btn--primary"
+        >
           <Plus size={18} />
           Add New Task
         </button>
       </div>
+      <div className="dashboard__col__body">
+        <div className="dashboard__col">
+          <div className="dashboard__stats">
+            {STATS.map(
+              ({ key, label, icon: Icon, valueKey, iconMod, valueMod }) => (
+                <div key={key} className="dashboard__stat">
+                  <div className={`dashboard__stat-icon ${iconMod}`}>
+                    <Icon size={20} />
+                  </div>
+                  <div className="dashboard__stat-body">
+                    <p className={`dashboard__stat-value ${valueMod}`}>
+                      {stats[valueKey]}
+                    </p>
+                    <p className="dashboard__stat-label">{label}</p>
+                  </div>
+                </div>
+              ),
+            )}
+          </div>
 
-      {/* Stats */}
-      <div className={STATS_GRID}>
-      {STATS.map(({ key, label, icon: Icon, iconColor, borderColor = "border-purple-100", valueKey, textColor, gradient }) => (
-           <div key={key} className={`${STAT_CARD} ${borderColor}`}>
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className={`${ICON_WRAPPER} ${iconColor}`}><Icon className="w-4 h-4 md:w-5 md:h-5" /></div>
-              <div className="min-w-0">
-                <p className={`${VALUE_CLASS} ${gradient ? "bg-linear-to-r from-fuchsia-500 to-purple-600 bg-clip-text text-transparent" : textColor}`}>{stats[valueKey]}</p>
-                <p className={LABEL_CLASS}>{label}</p>
+          <div className="dashboard__content">
+            <div className="dashboard__filter">
+              <div className="dashboard__filter-label">
+                <Filter size={20} className="dashboard__filter-icon" />
+                <h2 className="dashboard__filter-title">
+                  {FILTER_LABELS[filter]}
+                </h2>
+              </div>
+
+              <div className="input-field input-field--filter input-field--sm">
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  className="input-field__control"
+                  aria-label="Filter tasks"
+                >
+                  {FILTER_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="dashboard__tabs" role="tablist">
+                {FILTER_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    role="tab"
+                    aria-selected={filter === opt}
+                    onClick={() => setFilter(opt)}
+                    className={`dashboard__tab${filter === opt ? " is-active" : ""}`}
+                  >
+                    {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
-      ))}
 
-      </div>
-
-      {/* Content */}
-      <div className="space-y-6">
-        {/* Filter */}
-        <div className={FILTER_WRAPPER}>
-          <div className="flex items-center gap-2 min-w-0">
-            <Filter className="w-5 h-5 text-purple-500 shrink-0" />
-            <h2 className="text-base md:text-lg font-semibold text-gray-800 truncate">{FILTER_LABELS[filter]}</h2>
-          </div>
-          <select value={filter} onChange={e => setFilter(e.target.value)} className={SELECT_CLASSES}>
-            {FILTER_OPTIONS.map(opt => <option key={opt} value={opt}>{opt.charAt(0).toUpperCase() + opt.slice(1)}</option>)}
-          </select>
-          <div className={TABS_WRAPPER}>
-            {FILTER_OPTIONS.map(opt => (
-              <button key={opt} onClick={() => setFilter(opt)} className={`${TAB_BASE} ${filter === opt ? TAB_ACTIVE : TAB_INACTIVE}`}>{opt.charAt(0).toUpperCase() + opt.slice(1)}</button>
-            ))}
-          </div>
-        </div>
-
-        {/* Task List */}
-        <div className="space-y-4">
-          {filteredTasks.length === 0 ? (
-            <div className={EMPTY_STATE.wrapper}>
-              <div className={EMPTY_STATE.iconWrapper}><CalendarIcon className="w-8 h-8 text-purple-500" /></div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">No tasks found</h3>
-              <p className="text-sm text-gray-500 mb-4">{filter === "all" ? "Create your first task to get started" : "No tasks match this filter"}</p>
-              <button onClick={() => setShowModal(true)} className={EMPTY_STATE.btn}>Add New Task</button>
+            <div className="dashboard__list">
+              {filteredTasks.length === 0 ? (
+                <div className="dashboard__empty">
+                  <div className="dashboard__empty-icon">
+                    <CalendarIcon size={32} />
+                  </div>
+                  <h3 className="dashboard__empty-title">No tasks found</h3>
+                  <p className="dashboard__empty-text">
+                    {filter === "all"
+                      ? "Create your first task to get started"
+                      : "No tasks match this filter"}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(true)}
+                    className="btn btn--primary btn--sm"
+                  >
+                    Add New Task
+                  </button>
+                </div>
+              ) : (
+                filteredTasks.map((task) => (
+                  <TaskItem
+                    key={task._id || task.id}
+                    task={task}
+                    onRefresh={refreshTasks}
+                    onLogout={onLogout}
+                    showCompleteCheckbox
+                    onEdit={() => {
+                      setSelectedTask(task);
+                      setShowModal(true);
+                    }}
+                  />
+                ))
+              )}
             </div>
-          ) : (
-            filteredTasks.map(task => (
-              <TaskItem
-              key={task._id || task.id}
-                task={task}
-                onRefresh={refreshTasks}
-                showCompleteCheckbox
-                onEdit={() => { setSelectedTask(task); setShowModal(true); }}
-                />
-            ))
-          )}
+
+            <TaskModal
+              isOpen={showModal || !!selectedTask}
+              onClose={() => {
+                setShowModal(false);
+                setSelectedTask(null);
+              }}
+              taskToEdit={selectedTask}
+              onSave={handleTaskSave}
+              onLogout={onLogout}
+            />
+          </div>
         </div>
 
-        {/* Modal */}
-      <TaskModal
-        isOpen={showModal || !!selectedTask}
-        onClose={() => { setShowModal(false); setSelectedTask(null); }}
-        taskToEdit={selectedTask}
-        onSave={handleTaskSave}
-      />
+        <div className="card dashboard__col">
+          <div className="planner__plan-body">
+            <h2 className="card__title">
+              Day Plan for - {formatDateValue(selectedDate)}
+            </h2>
+            <GeneratedPlans plan={plan} focusMode={focusMode} />
+          </div>
 
+          <div className="card__footer">
+            <span className="card__footer-quote">
+              &ldquo;The secret of getting ahead is getting started.&rdquo; —
+              Mark Twain
+            </span>
+            <span className="card__footer-tagline">
+              Plan well. Achieve more.
+            </span>
+          </div>
+        </div>
       </div>
+    </div>
+  );
+};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-      </div>
-  )
-}
-
-export default Dashboard
+export default Dashboard;

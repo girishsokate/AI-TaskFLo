@@ -1,0 +1,46 @@
+/* Badges / priority pills */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.badge--high {
+  background: var(--color-high-soft);
+  color: var(--color-high-text);
+}
+
+.badge--high .badge__dot {
+  background: var(--color-high);
+}
+
+.badge--medium {
+  background: var(--color-medium-soft);
+  color: var(--color-medium-text);
+}
+
+.badge--medium .badge__dot {
+  background: var(--color-medium);
+}
+
+.badge--low {
+  background: var(--color-low-soft);
+  color: var(--color-low-text);
+}
+
+.badge--low .badge__dot {
+  background: var(--color-low);
+}

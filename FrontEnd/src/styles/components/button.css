@@ -1,0 +1,147 @@
+/* Buttons — Daily Planner UI */
+
+button.btn,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    background-color var(--duration) var(--ease),
+    color var(--duration) var(--ease),
+    box-shadow var(--duration) var(--ease),
+    transform var(--duration) var(--ease),
+    border-color var(--duration) var(--ease);
+}
+
+button.btn:disabled,
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Primary — solid blue (Generate Plan / main CTAs) */
+button.btn--primary,
+.btn--primary {
+  background-color: #2563eb;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  color: var(--color-text-inverse);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+button.btn--primary:hover:not(:disabled),
+.btn--primary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  background-color: var(--color-primary-hover);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
+}
+
+button.btn--primary:active:not(:disabled),
+.btn--primary:active:not(:disabled) {
+  background-color: #1e40af;
+  transform: translateY(0);
+}
+
+/* Secondary — soft lavender (AI Planner style) */
+button.btn--secondary,
+.btn--secondary {
+  background-color: #ede9fe;
+  background-color: var(--color-accent-soft);
+  color: #6d28d9;
+  color: var(--color-accent-text);
+  box-shadow: none;
+}
+
+button.btn--secondary:hover:not(:disabled),
+.btn--secondary:hover:not(:disabled) {
+  background-color: #ddd6fe;
+  color: #5b21b6;
+}
+
+/* Soft / muted blue */
+button.btn--soft,
+.btn--soft {
+  background-color: #eff6ff;
+  background-color: var(--color-primary-soft);
+  color: #2563eb;
+  color: var(--color-primary);
+}
+
+button.btn--soft:hover:not(:disabled),
+.btn--soft:hover:not(:disabled) {
+  background-color: #dbeafe;
+  background-color: var(--color-primary-muted);
+}
+
+/* Ghost / outline */
+button.btn--ghost,
+.btn--ghost {
+  background-color: transparent;
+  color: #64748b;
+  color: var(--color-text-secondary);
+  border-color: #e2e8f0;
+  border-color: var(--color-border);
+}
+
+button.btn--ghost:hover:not(:disabled),
+.btn--ghost:hover:not(:disabled) {
+  background-color: #f8fafc;
+  background-color: var(--color-surface-muted);
+  color: #1e293b;
+  color: var(--color-text);
+}
+
+/* Danger */
+button.btn--danger,
+.btn--danger {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+button.btn--danger:hover:not(:disabled),
+.btn--danger:hover:not(:disabled) {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Layout variants */
+.btn--block {
+  width: 100%;
+}
+
+.btn--lg {
+  padding: 1rem 1.5rem;
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-md);
+}
+
+.btn--sm {
+  padding: 0.5rem 0.875rem;
+  font-size: var(--font-size-xs);
+}
+
+.btn--icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius-sm);
+}
+
+.btn svg {
+  flex-shrink: 0;
+}

@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+@import "./styles/variables.css";
+@import "./styles/base.css";
+@import "./styles/components/layout.css";
+@import "./styles/components/sidebar.css";
+@import "./styles/components/header.css";
+@import "./styles/components/card.css";
+@import "./styles/components/button.css";
+@import "./styles/components/form.css";
+@import "./styles/components/badge.css";
+@import "./styles/components/timeline.css";
+@import "./styles/components/planner.css";
+@import "./styles/components/dashboard.css";
+@import "./styles/components/taskboard.css";
+@import "./styles/components/analytics.css";
